@@ -4,10 +4,14 @@ import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { colors } from '../theme/colors';
 import WelcomeScreen from '../../screens/onboarding/Welcome';
 import ArtStyleScreen from '../../screens/onboarding/ArtStyle';
+import NamePhotoScreen from '../../screens/onboarding/NamePhoto';
+import VoiceTrainHoursScreen from '../../screens/onboarding/VoiceTrainHours';
 
 export type RootStackParamList = {
   Welcome: undefined;
   ArtStyle: undefined;
+  NamePhoto: undefined;
+  VoiceTrainHours: undefined;
 };
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
@@ -40,6 +44,20 @@ export default function RootNavigator() {
         <Stack.Screen
           name="ArtStyle"
           component={ArtStyleScreen}
+          options={{
+            headerShown: false,
+          }}
+        />
+        <Stack.Screen
+          name="NamePhoto"
+          component={NamePhotoScreen}
+          options={{
+            headerShown: false,
+          }}
+        />
+        <Stack.Screen
+          name="VoiceTrainHours"
+          component={VoiceTrainHoursScreen}
           options={{
             headerShown: false,
           }}
