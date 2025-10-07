@@ -1,30 +1,33 @@
 {
   "expo": {
-    "name": "deeper",
+    "name": "Deeper",
     "slug": "deeper",
     "version": "1.0.0",
     "orientation": "portrait",
-    "icon": "./assets/icon.png",
-    "userInterfaceStyle": "light",
+    "icon": "./assets/placeholder/logo.png",
+    "userInterfaceStyle": "dark",
+    "scheme": "deeper",
     "newArchEnabled": true,
     "splash": {
-      "image": "./assets/splash-icon.png",
-      "resizeMode": "contain",
-      "backgroundColor": "#ffffff"
+      "image": "./assets/placeholder/splash.png",
+      "resizeMode": "cover",
+      "backgroundColor": "#0D0A12"
     },
     "ios": {
-      "supportsTablet": true
+      "supportsTablet": true,
+      "bundleIdentifier": "com.yourname.deeper"
     },
     "android": {
       "adaptiveIcon": {
-        "foregroundImage": "./assets/adaptive-icon.png",
-        "backgroundColor": "#ffffff"
+        "foregroundImage": "./assets/placeholder/logo.png",
+        "backgroundColor": "#0D0A12"
       },
+      "package": "com.yourname.deeper",
       "edgeToEdgeEnabled": true,
       "predictiveBackGestureEnabled": false
     },
     "web": {
-      "favicon": "./assets/favicon.png"
+      "favicon": "./assets/placeholder/logo.png"
     }
   }
 }
