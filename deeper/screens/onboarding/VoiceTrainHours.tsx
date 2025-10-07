@@ -1,28 +1,24 @@
 import React, { useCallback, useMemo, useRef, useState } from 'react';
 import { View, Text, StyleSheet } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { useNavigation } from '@react-navigation/native';
+import { NavigationProp } from '@react-navigation/native';
+import { RootStackParamList } from '../../src/navigation/RootNavigator';
 import GradientScreen from '../../src/ui/GradientScreen';
 import PrimaryButton from '../../src/ui/PrimaryButton';
 import ProgressBar from '../../src/ui/ProgressBar';
 import { colors, fontSizes, spacing } from '../../src/theme/colors';
 import { useOnboardingStore } from '../../src/state/onboardingStore';
-import { useNavigation } from '@react-navigation/native';
-import { NavigationProp } from '@react-navigation/native';
-import { RootStackParamList } from '../../src/navigation/RootNavigator';
 
 export default function VoiceTrainHoursScreen() {
   const navigation = useNavigation<NavigationProp<RootStackParamList>>();
-  const updateSlider = useOnboardingStore((s) => s.updateSlider);
-  const markStepCompleted = useOnboardingStore((s) => s.markStepCompleted);
-  const name = useOnboardingStore((s) => s.name);
-  const artStyle = useOnboardingStore((s) => s.artStyle);
+  const onboardingStore = useOnboardingStore();
 
   const [hours, setHours] = useState<number>(0);
-
   const trackRef = useRef<View | null>(null);
 
   const sliderLabel = useMemo(() => {
-    if (hours <= 0) return "I don’t train";
+    if (hours <= 0) return "I don't train";
     return `~${hours.toFixed(hours % 1 === 0 ? 0 : 1)} hours/week`;
   }, [hours]);
 
@@ -41,7 +37,7 @@ export default function VoiceTrainHoursScreen() {
     setHours(Number(snapped.toFixed(2)));
   }, []);
 
-  const onResponderGrant = useCallback((evt) => {
+  const onResponderGrant = useCallback((evt: any) => {
     if (!trackRef.current) return;
     trackRef.current.measure((_x, _y, width, _height, pageX, _pageY) => {
       const touchX = evt.nativeEvent.pageX - pageX;
@@ -49,7 +45,7 @@ export default function VoiceTrainHoursScreen() {
     });
   }, [handleTrackTouch]);
 
-  const onResponderMove = useCallback((evt) => {
+  const onResponderMove = useCallback((evt: any) => {
     if (!trackRef.current) return;
     trackRef.current.measure((_x, _y, width, _height, pageX, _pageY) => {
       const touchX = evt.nativeEvent.pageX - pageX;
@@ -58,22 +54,20 @@ export default function VoiceTrainHoursScreen() {
   }, [handleTrackTouch]);
 
   const handleConfirm = useCallback(() => {
-    updateSlider('voiceTrainHours', hours);
-    markStepCompleted('VoiceTrainHours');
+    onboardingStore.saveAnswer('voiceTrainHours', hours);
     navigation.navigate('BreathworkMinutes');
-  }, [hours, markStepCompleted, navigation, updateSlider]);
+  }, [hours, navigation, onboardingStore]);
 
   const categories = useMemo(
     () => [
-      { key: 'ArtStyle', label: 'Art Style', completed: !!artStyle },
-      { key: 'NamePhoto', label: 'Name & Photo', completed: (name ?? '').trim().length > 0 },
+      { key: 'ArtStyle', label: 'Art Style', completed: !!onboardingStore.answers.artStyle },
+      { key: 'NamePhoto', label: 'Name & Photo', completed: !!(onboardingStore.answers.name as string)?.trim() },
       { key: 'VoiceTrainHours', label: 'Voice Hours', completed: false },
-      { key: 'BreathworkMinutes', label: 'Breathwork', completed: false },
     ],
-    [artStyle, name]
+    [onboardingStore.answers]
   );
 
-  const thumbLeftPercent = useMemo(() => `${(hours / 10) * 100}%`, [hours]);
+  const thumbLeftPercent = useMemo(() => (hours / 10) * 100, [hours]);
 
   return (
     <SafeAreaView style={styles.container} edges={['top']}>
@@ -110,8 +104,8 @@ export default function VoiceTrainHoursScreen() {
                 onResponderGrant={onResponderGrant}
                 onResponderMove={onResponderMove}
               >
-                <View style={styles.sliderFill} width={`${(hours / 10) * 100}%`} />
-                <View style={[styles.sliderThumb, { left: thumbLeftPercent }]} />
+                <View style={[styles.sliderFill, { width: `${(hours / 10) * 100}%` }]} />
+                <View style={[styles.sliderThumb, { left: `${thumbLeftPercent}%` }]} />
                 <View style={styles.sliderTicksRow}>
                   {Array.from({ length: 11 }).map((_, i) => (
                     <View key={i} style={styles.sliderTick} />
@@ -249,5 +243,3 @@ const styles = StyleSheet.create({
     marginTop: spacing.xxl,
   },
 });
-
-

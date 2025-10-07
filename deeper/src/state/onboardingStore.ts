@@ -1,86 +1,56 @@
 import { create } from 'zustand';
-import { persist } from 'zustand/middleware';
+import { persist, createJSONStorage } from 'zustand/middleware';
+import { defaultJSONStorage } from '../lib/storage';
 
-export interface OnboardingData {
-  name: string;
-  avatarUri: string | null;
-  artStyle: string;
-  sliders: Record<string, number>;
-  booleans: Record<string, boolean>;
-  permissions: Record<string, boolean>;
-  chosenExtras: string[];
-  completedSteps: string[];
-}
+export type OnboardingAnswers = Record<string, unknown>;
 
-interface OnboardingStore extends OnboardingData {
-  updateName: (name: string) => void;
-  updateAvatarUri: (uri: string | null) => void;
-  updateArtStyle: (style: string) => void;
-  updateSlider: (key: string, value: number) => void;
-  updateBoolean: (key: string, value: boolean) => void;
-  updatePermission: (key: string, value: boolean) => void;
-  addChosenExtra: (extra: string) => void;
-  removeChosenExtra: (extra: string) => void;
-  markStepCompleted: (step: string) => void;
-  resetOnboarding: () => void;
-}
-
-const initialData: OnboardingData = {
-  name: '',
-  avatarUri: null,
-  artStyle: '',
-  sliders: {},
-  booleans: {},
-  permissions: {},
-  chosenExtras: [],
-  completedSteps: [],
+type OnboardingState = {
+  version: number;            // for migrations
+  stepIndex: number;
+  answers: OnboardingAnswers;
+  hasHydrated: boolean;
+  setHasHydrated: (v: boolean) => void;
+  setStepIndex: (i: number) => void;
+  saveAnswer: (id: string, value: unknown) => void;
+  reset: () => void;
 };
 
-export const useOnboardingStore = create<OnboardingStore>()(
+const PERSIST_NAME = 'onboarding-storage';
+const PERSIST_VERSION = 2;
+
+export const useOnboardingStore = create<OnboardingState>()(
   persist(
     (set, get) => ({
-      ...initialData,
-      
-      updateName: (name: string) => set({ name }),
-      
-      updateAvatarUri: (avatarUri: string | null) => set({ avatarUri }),
-      
-      updateArtStyle: (artStyle: string) => set({ artStyle }),
-      
-      updateSlider: (key: string, value: number) =>
-        set((state) => ({
-          sliders: { ...state.sliders, [key]: value },
-        })),
-      
-      updateBoolean: (key: string, value: boolean) =>
-        set((state) => ({
-          booleans: { ...state.booleans, [key]: value },
-        })),
-      
-      updatePermission: (key: string, value: boolean) =>
-        set((state) => ({
-          permissions: { ...state.permissions, [key]: value },
-        })),
-      
-      addChosenExtra: (extra: string) =>
-        set((state) => ({
-          chosenExtras: [...state.chosenExtras, extra],
-        })),
-      
-      removeChosenExtra: (extra: string) =>
-        set((state) => ({
-          chosenExtras: state.chosenExtras.filter((item) => item !== extra),
-        })),
-      
-      markStepCompleted: (step: string) =>
-        set((state) => ({
-          completedSteps: [...state.completedSteps, step],
-        })),
-      
-      resetOnboarding: () => set(initialData),
+      version: PERSIST_VERSION,
+      stepIndex: 0,
+      answers: {},
+      hasHydrated: false,
+      setHasHydrated: (v) => set({ hasHydrated: v }),
+      setStepIndex: (i) => set({ stepIndex: i }),
+      saveAnswer: (id, value) => set((s) => ({ answers: { ...s.answers, [id]: value } })),
+      reset: () => set({ stepIndex: 0, answers: {} }),
     }),
     {
-      name: 'onboarding-storage',
+      name: PERSIST_NAME,
+      version: PERSIST_VERSION,
+      storage: createJSONStorage(defaultJSONStorage),
+      partialize: (s) => ({ version: s.version, stepIndex: s.stepIndex, answers: s.answers }),
+      onRehydrateStorage: () => (state) => {
+        // called before/after rehydration
+        state?.setHasHydrated(true);
+      },
+      migrate: (persisted: any, fromVersion: number) => {
+        // Add migration steps as needed
+        if (!persisted) return { version: PERSIST_VERSION, stepIndex: 0, answers: {} };
+        if (fromVersion < 2) {
+          // example migration: ensure answers is an object
+          if (persisted.answers == null || typeof persisted.answers !== 'object') {
+            persisted.answers = {};
+          }
+        }
+        persisted.version = PERSIST_VERSION;
+        return persisted as OnboardingState;
+      },
     }
   )
 );

@@ -20,16 +20,13 @@ import { useOnboardingStore } from '../../src/state/onboardingStore';
 
 export default function NamePhotoScreen() {
   const navigation = useNavigation<NavigationProp<RootStackParamList>>();
-  const storedName = useOnboardingStore((s) => s.name);
-  const storedAvatarUri = useOnboardingStore((s) => s.avatarUri);
-  const updateName = useOnboardingStore((s) => s.updateName);
-  const updateAvatarUri = useOnboardingStore((s) => s.updateAvatarUri);
+  const onboardingStore = useOnboardingStore();
 
-  const [name, setName] = useState<string>(storedName ?? '');
-  const [avatarUri, setAvatarUri] = useState<string | null>(storedAvatarUri ?? null);
+  const [localName, setLocalName] = useState<string>('');
+  const [avatarUri, setAvatarUri] = useState<string | null>(null);
   const [requestingPermission, setRequestingPermission] = useState(false);
 
-  const isContinueDisabled = useMemo(() => name.trim().length === 0, [name]);
+  const isContinueDisabled = useMemo(() => localName.trim().length === 0, [localName]);
 
   const handlePickImage = useCallback(async () => {
     try {
@@ -55,10 +52,10 @@ export default function NamePhotoScreen() {
   }, []);
 
   const handleContinue = useCallback(() => {
-    updateName(name.trim());
-    updateAvatarUri(avatarUri ?? null);
+    onboardingStore.saveAnswer('name', localName.trim());
+    onboardingStore.saveAnswer('avatarUri', avatarUri);
     navigation.navigate('VoiceTrainHours');
-  }, [name, avatarUri, navigation, updateName, updateAvatarUri]);
+  }, [localName, avatarUri, navigation, onboardingStore]);
 
   return (
     <SafeAreaView style={styles.container} edges={['top']}>
@@ -88,8 +85,8 @@ export default function NamePhotoScreen() {
             </TouchableOpacity>
 
             <TextInput
-              value={name}
-              onChangeText={setName}
+              value={localName}
+              onChangeText={setLocalName}
               placeholder="Your name"
               placeholderTextColor={colors.subtext}
               style={styles.input}

@@ -12,8 +12,7 @@ import { RootStackParamList } from '../../src/navigation/RootNavigator';
 
 export default function LoudEnvironmentsHoursScreen() {
   const navigation = useNavigation<NavigationProp<RootStackParamList>>();
-  const updateSlider = useOnboardingStore((s) => s.updateSlider);
-  const markStepCompleted = useOnboardingStore((s) => s.markStepCompleted);
+  const onboardingStore = useOnboardingStore();
 
   const [hours, setHours] = useState<number>(0);
   const trackRef = useRef<View | null>(null);
@@ -28,7 +27,7 @@ export default function LoudEnvironmentsHoursScreen() {
     setHours(Number(snapped.toFixed(2)));
   }, []);
 
-  const onGrant = useCallback((evt) => {
+  const onGrant = useCallback((evt: any) => {
     if (!trackRef.current) return;
     trackRef.current.measure((_x, _y, width, _h, pageX) => {
       const touchX = evt.nativeEvent.pageX - pageX;
@@ -36,7 +35,7 @@ export default function LoudEnvironmentsHoursScreen() {
     });
   }, [handleFromTouch]);
 
-  const onMove = useCallback((evt) => {
+  const onMove = useCallback((evt: any) => {
     if (!trackRef.current) return;
     trackRef.current.measure((_x, _y, width, _h, pageX) => {
       const touchX = evt.nativeEvent.pageX - pageX;
@@ -51,13 +50,12 @@ export default function LoudEnvironmentsHoursScreen() {
     return `Around ${lower}–${upper} hours`;
   }, [hours]);
 
-  const fillPercent = useMemo(() => `${Math.min(100, (hours / 4) * 100)}%`, [hours]);
+  const fillPercent = useMemo(() => Math.min(100, (hours / 4) * 100), [hours]);
 
   const handleConfirm = useCallback(() => {
-    updateSlider('loudEnvironmentsHours', hours);
-    markStepCompleted('LoudEnvironmentsHours');
+    onboardingStore.saveAnswer('loudEnvironmentsHours', hours);
     navigation.navigate('SteamHumidifyFrequency');
-  }, [hours, markStepCompleted, navigation, updateSlider]);
+  }, [hours, navigation, onboardingStore]);
 
   return (
     <SafeAreaView style={styles.container} edges={['top']}>
@@ -83,8 +81,8 @@ export default function LoudEnvironmentsHoursScreen() {
                 <View key={i} style={styles.sliderTick} />
               ))}
             </View>
-            <View style={[styles.sliderFill, { width: fillPercent }]} />
-            <View style={[styles.sliderThumb, { left: fillPercent }]} />
+            <View style={[styles.sliderFill, { width: `${fillPercent}%` }]} />
+            <View style={[styles.sliderThumb, { left: `${fillPercent}%` }]} />
           </View>
 
           <Text style={styles.friendly}>{label}</Text>

@@ -1,4 +1,4 @@
-import React, { useCallback, useMemo } from 'react';
+import React, { useCallback, useMemo, useState } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import GradientScreen from '../../src/ui/GradientScreen';
@@ -12,10 +12,7 @@ import { RootStackParamList } from '../../src/navigation/RootNavigator';
 
 export default function ExtrasChooserScreen() {
   const navigation = useNavigation<NavigationProp<RootStackParamList>>();
-  const chosenExtras = useOnboardingStore((s) => s.chosenExtras);
-  const addExtra = useOnboardingStore((s) => s.addChosenExtra);
-  const removeExtra = useOnboardingStore((s) => s.removeChosenExtra);
-  const markStepCompleted = useOnboardingStore((s) => s.markStepCompleted);
+  const onboardingStore = useOnboardingStore();
 
   const maxExtras = 2;
   const options = useMemo(
@@ -32,33 +29,35 @@ export default function ExtrasChooserScreen() {
     []
   );
 
-  const isSelected = useCallback((label: string) => chosenExtras.includes(label), [chosenExtras]);
+  const [selectedExtras, setSelectedExtras] = useState<string[]>([]);
 
-  const canSelectMore = chosenExtras.length < maxExtras;
+  const isSelected = useCallback((label: string) => selectedExtras.includes(label), [selectedExtras]);
+
+  const canSelectMore = selectedExtras.length < maxExtras;
 
   const toggle = useCallback(
     (label: string) => {
       if (isSelected(label)) {
-        removeExtra(label);
+        setSelectedExtras((prev: string[]) => prev.filter((extra: string) => extra !== label));
         return;
       }
       if (canSelectMore) {
-        addExtra(label);
+        setSelectedExtras((prev: string[]) => [...prev, label]);
       }
     },
-    [addExtra, canSelectMore, isSelected, removeExtra]
+    [canSelectMore, isSelected]
   );
 
   const handleContinue = useCallback(() => {
-    markStepCompleted('ExtrasChooser');
+    onboardingStore.saveAnswer('chosenExtras', selectedExtras);
     navigation.navigate('DownGlidesCount');
-  }, [markStepCompleted, navigation]);
+  }, [navigation, onboardingStore, selectedExtras]);
 
   const slots = useMemo(() => {
-    const filled = chosenExtras.slice(0, maxExtras);
+    const filled = selectedExtras.slice(0, maxExtras);
     const empties = Math.max(0, maxExtras - filled.length);
     return { filled, empties };
-  }, [chosenExtras]);
+  }, [selectedExtras]);
 
   return (
     <SafeAreaView style={styles.container} edges={['top']}>
@@ -68,7 +67,7 @@ export default function ExtrasChooserScreen() {
           <Text style={styles.title}>Do you want to add any extra tasks to the program? (Max 2)</Text>
 
           <View style={styles.slotsRow}>
-            {slots.filled.map((label) => (
+            {slots.filled.map((label: string) => (
               <View key={label} style={[styles.slotBox, styles.slotFilled]}> 
                 <Text style={styles.slotText}>{label}</Text>
               </View>

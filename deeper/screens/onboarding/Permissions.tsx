@@ -12,8 +12,7 @@ import { RootStackParamList } from '../../src/navigation/RootNavigator';
 
 export default function PermissionsScreen() {
   const navigation = useNavigation<NavigationProp<RootStackParamList>>();
-  const updatePermission = useOnboardingStore((s) => s.updatePermission);
-  const markStepCompleted = useOnboardingStore((s) => s.markStepCompleted);
+  const onboardingStore = useOnboardingStore();
 
   const [microphoneAllowed, setMicrophoneAllowed] = useState<boolean>(false);
   const [notificationsAllowed, setNotificationsAllowed] = useState<boolean>(false);
@@ -39,12 +38,13 @@ export default function PermissionsScreen() {
   );
 
   const handleNext = useCallback(() => {
+    const permissionData: Record<string, boolean> = {};
     permissions.forEach((perm) => {
-      updatePermission(perm.key, perm.allowed);
+      permissionData[perm.key] = perm.allowed;
     });
-    markStepCompleted('Permissions');
+    onboardingStore.saveAnswer('permissions', permissionData);
     navigation.navigate('Aims');
-  }, [markStepCompleted, navigation, permissions, updatePermission]);
+  }, [navigation, onboardingStore, permissions]);
 
   return (
     <SafeAreaView style={styles.container} edges={['top']}>

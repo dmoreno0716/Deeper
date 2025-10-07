@@ -15,19 +15,20 @@ export default function CurrentRatingScreen() {
   const onboardingData = useOnboardingStore();
 
   const calculateScores = useCallback(() => {
-    const { sliders, booleans } = onboardingData;
+    const { answers } = onboardingData;
     
     // Simple heuristic calculations based on collected data
-    const voiceTrainHours = sliders.voiceTrainHours || 0;
-    const breathworkMinutes = sliders.breathworkMinutes || 0;
-    const readAloudPages = sliders.readAloudPages || 0;
-    const loudEnvironmentsHours = sliders.loudEnvironmentsHours || 0;
-    const steamHumidifyFrequency = sliders.steamHumidifyFrequency || 0;
-    const downGlidesCount = sliders.downGlidesCount || 0;
-    const techniqueStudyDaily = sliders.techniqueStudyDaily || 0;
+    const voiceTrainHours = (answers.voiceTrainHours as number) || 0;
+    const breathworkMinutes = (answers.breathworkMinutes as number) || 0;
+    const readAloudPages = (answers.readAloudPages as number) || 0;
+    const loudEnvironmentsHours = (answers.loudEnvironmentsHours as number) || 0;
+    const steamHumidifyFrequency = (answers.steamHumidifyFrequency as number) || 0;
+    const downGlidesCount = (answers.downGlidesCount as number) || 0;
+    const techniqueStudyDaily = (answers.techniqueStudyDaily as number) || 0;
     
-    const reduceVoiceStrain = booleans.reduceVoiceStrain || false;
-    const trainInMorning = booleans.trainInMorning || false;
+    const aims = (answers.aims as Record<string, boolean>) || {};
+    const reduceVoiceStrain = aims.reduceVoiceStrain || false;
+    const trainInMorning = aims.trainInMorning || false;
 
     // Calculate scores (0-100) based on collected data
     const overall = Math.min(100, Math.max(0, 
