@@ -12,8 +12,7 @@ import { RootStackParamList } from '../../src/navigation/RootNavigator';
 
 export default function SteamHumidifyFrequencyScreen() {
   const navigation = useNavigation<NavigationProp<RootStackParamList>>();
-  const updateSlider = useOnboardingStore((s) => s.updateSlider);
-  const markStepCompleted = useOnboardingStore((s) => s.markStepCompleted);
+  const onboardingStore = useOnboardingStore();
 
   const options = useMemo(
     () => [
@@ -29,10 +28,9 @@ export default function SteamHumidifyFrequencyScreen() {
   const [selected, setSelected] = useState<number>(0);
 
   const handleConfirm = useCallback(() => {
-    updateSlider('steamHumidifyFrequency', selected);
-    markStepCompleted('SteamHumidifyFrequency');
+    onboardingStore.saveAnswer('steamHumidifyFrequency', selected);
     navigation.navigate('ExtrasChooser');
-  }, [markStepCompleted, navigation, selected, updateSlider]);
+  }, [navigation, onboardingStore, selected]);
 
   return (
     <SafeAreaView style={styles.container} edges={['top']}>

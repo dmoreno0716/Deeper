@@ -12,8 +12,7 @@ import { RootStackParamList } from '../../src/navigation/RootNavigator';
 
 export default function BreathworkMinutesScreen() {
   const navigation = useNavigation<NavigationProp<RootStackParamList>>();
-  const updateSlider = useOnboardingStore((s) => s.updateSlider);
-  const markStepCompleted = useOnboardingStore((s) => s.markStepCompleted);
+  const onboardingStore = useOnboardingStore();
 
   const stops = useMemo<number[]>(() => [0, 10, 20, 30, 45, 60, 90], []);
   const [value, setValue] = useState<number>(0);
@@ -21,6 +20,11 @@ export default function BreathworkMinutesScreen() {
 
   const indexToPercent = useCallback(
     (i: number) => `${(i / (stops.length - 1)) * 100}%`,
+    [stops.length]
+  );
+
+  const indexToWidthPercent = useCallback(
+    (i: number) => (i / (stops.length - 1)) * 100,
     [stops.length]
   );
 
@@ -56,7 +60,7 @@ export default function BreathworkMinutesScreen() {
     setValue(stops[idx]);
   }, [nearestStop, stops]);
 
-  const onGrant = useCallback((evt) => {
+  const onGrant = useCallback((evt: any) => {
     if (!trackRef.current) return;
     trackRef.current.measure((_x, _y, width, _h, pageX) => {
       const touchX = evt.nativeEvent.pageX - pageX;
@@ -64,7 +68,7 @@ export default function BreathworkMinutesScreen() {
     });
   }, [setFromTouch]);
 
-  const onMove = useCallback((evt) => {
+  const onMove = useCallback((evt: any) => {
     if (!trackRef.current) return;
     trackRef.current.measure((_x, _y, width, _h, pageX) => {
       const touchX = evt.nativeEvent.pageX - pageX;
@@ -73,10 +77,9 @@ export default function BreathworkMinutesScreen() {
   }, [setFromTouch]);
 
   const handleConfirm = useCallback(() => {
-    updateSlider('breathworkMinutes', value);
-    markStepCompleted('BreathworkMinutes');
+    onboardingStore.saveAnswer('breathworkMinutes', value);
     navigation.navigate('ReadAloudPages');
-  }, [markStepCompleted, navigation, updateSlider, value]);
+  }, [navigation, onboardingStore, value]);
 
   return (
     <SafeAreaView style={styles.container} edges={['top']}>
@@ -101,8 +104,8 @@ export default function BreathworkMinutesScreen() {
                 <View key={i} style={styles.sliderTick} />
               ))}
             </View>
-            <View style={styles.sliderFill} width={indexToPercent(currentIndex)} />
-            <View style={[styles.sliderThumb, { left: indexToPercent(currentIndex) }]} />
+            <View style={[styles.sliderFill, { width: `${indexToWidthPercent(currentIndex)}%` }]} />
+            <View style={[styles.sliderThumb, { left: `${indexToWidthPercent(currentIndex)}%` }]} />
           </View>
 
           <Text style={styles.friendly}>{friendlyLabel}</Text>

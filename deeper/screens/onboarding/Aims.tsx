@@ -12,8 +12,7 @@ import { RootStackParamList } from '../../src/navigation/RootNavigator';
 
 export default function AimsScreen() {
   const navigation = useNavigation<NavigationProp<RootStackParamList>>();
-  const updateBoolean = useOnboardingStore((s) => s.updateBoolean);
-  const markStepCompleted = useOnboardingStore((s) => s.markStepCompleted);
+  const onboardingStore = useOnboardingStore();
 
   const [reduceVoiceStrain, setReduceVoiceStrain] = useState<boolean | null>(null);
   const [trainInMorning, setTrainInMorning] = useState<boolean | null>(null);
@@ -37,14 +36,15 @@ export default function AimsScreen() {
   );
 
   const handleContinue = useCallback(() => {
+    const aimsData: Record<string, boolean> = {};
     questions.forEach((q) => {
       if (q.value !== null) {
-        updateBoolean(q.key, q.value);
+        aimsData[q.key] = q.value;
       }
     });
-    markStepCompleted('Aims');
+    onboardingStore.saveAnswer('aims', aimsData);
     navigation.navigate('Analyzing');
-  }, [markStepCompleted, navigation, questions, updateBoolean]);
+  }, [navigation, onboardingStore, questions]);
 
   const isComplete = questions.every((q) => q.value !== null);
 

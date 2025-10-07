@@ -12,8 +12,7 @@ import { RootStackParamList } from '../../src/navigation/RootNavigator';
 
 export default function ReadAloudPagesScreen() {
   const navigation = useNavigation<NavigationProp<RootStackParamList>>();
-  const updateSlider = useOnboardingStore((s) => s.updateSlider);
-  const markStepCompleted = useOnboardingStore((s) => s.markStepCompleted);
+  const onboardingStore = useOnboardingStore();
 
   const options = useMemo(
     () => [
@@ -29,10 +28,9 @@ export default function ReadAloudPagesScreen() {
   const [selected, setSelected] = useState<number>(0);
 
   const handleConfirm = useCallback(() => {
-    updateSlider('readAloudPages', selected);
-    markStepCompleted('ReadAloudPages');
+    onboardingStore.saveAnswer('readAloudPages', selected);
     navigation.navigate('LoudEnvironmentsHours');
-  }, [markStepCompleted, navigation, selected, updateSlider]);
+  }, [navigation, onboardingStore, selected]);
 
   return (
     <SafeAreaView style={styles.container} edges={['top']}>

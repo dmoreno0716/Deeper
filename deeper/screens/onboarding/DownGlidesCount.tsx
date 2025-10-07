@@ -12,8 +12,7 @@ import { RootStackParamList } from '../../src/navigation/RootNavigator';
 
 export default function DownGlidesCountScreen() {
   const navigation = useNavigation<NavigationProp<RootStackParamList>>();
-  const updateSlider = useOnboardingStore((s) => s.updateSlider);
-  const markStepCompleted = useOnboardingStore((s) => s.markStepCompleted);
+  const onboardingStore = useOnboardingStore();
 
   const options = useMemo(
     () => [
@@ -29,10 +28,9 @@ export default function DownGlidesCountScreen() {
   const [selected, setSelected] = useState<number>(5);
 
   const handleConfirm = useCallback(() => {
-    updateSlider('downGlidesCount', selected);
-    markStepCompleted('DownGlidesCount');
+    onboardingStore.saveAnswer('downGlidesCount', selected);
     navigation.navigate('TechniqueStudyDaily');
-  }, [markStepCompleted, navigation, selected, updateSlider]);
+  }, [navigation, onboardingStore, selected]);
 
   return (
     <SafeAreaView style={styles.container} edges={['top']}>
