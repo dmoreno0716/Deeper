@@ -8,12 +8,15 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import GradientScreen from '../../src/ui/GradientScreen';
 import PrimaryButton from '../../src/ui/PrimaryButton';
 import ProgressBar from '../../src/ui/ProgressBar';
+import { useNavigation } from '@react-navigation/native';
+import { NavigationProp } from '@react-navigation/native';
+import { RootStackParamList } from '../../src/navigation/RootNavigator';
 import { colors, fontSizes, spacing } from '../../src/theme/colors';
 
 export default function ArtStyleScreen() {
+  const navigation = useNavigation<NavigationProp<RootStackParamList>>();
   const handleContinue = () => {
-    // TODO: Navigate to next onboarding step
-    console.log('Continue pressed');
+    navigation.navigate('NamePhoto');
   };
 
   return (
