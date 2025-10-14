@@ -1,6 +1,6 @@
 import SwiftUI
 
-struct PrimaryButton: View {
+struct SecondaryButton: View {
     let title: String
     let action: () -> Void
     var isDisabled: Bool = false
@@ -11,13 +11,13 @@ struct PrimaryButton: View {
             HStack {
                 if isLoading {
                     ProgressView()
-                        .progressViewStyle(CircularProgressViewStyle(tint: Theme.textPrimary))
+                        .progressViewStyle(CircularProgressViewStyle(tint: Theme.accent))
                         .scaleEffect(0.8)
                 } else {
                     Text(title)
                         .font(.deeperBody)
                         .fontWeight(.semibold)
-                        .foregroundColor(Theme.textPrimary)
+                        .foregroundColor(isDisabled ? Theme.textSecondary : Theme.accent)
                 }
             }
             .frame(minHeight: 48)
@@ -26,12 +26,13 @@ struct PrimaryButton: View {
             .padding(.vertical, Theme.spacingMD)
             .background(
                 RoundedRectangle(cornerRadius: 12)
-                    .fill(isDisabled ? Theme.textSecondary : Theme.accent)
-                    .shadow(
-                        color: isDisabled ? .clear : Theme.accent.opacity(0.3),
-                        radius: 8,
-                        x: 0,
-                        y: 4
+                    .stroke(
+                        isDisabled ? Theme.textSecondary : Theme.accent,
+                        lineWidth: 2
+                    )
+                    .background(
+                        RoundedRectangle(cornerRadius: 12)
+                            .fill(Color.clear)
                     )
             )
         }
@@ -44,11 +45,11 @@ struct PrimaryButton: View {
 
 #Preview {
     VStack(spacing: 16) {
-        PrimaryButton(title: "Primary Button", action: {})
+        SecondaryButton(title: "Secondary Button", action: {})
         
-        PrimaryButton(title: "Loading Button", action: {}, isLoading: true)
+        SecondaryButton(title: "Loading Button", action: {}, isLoading: true)
         
-        PrimaryButton(title: "Disabled Button", action: {}, isDisabled: true)
+        SecondaryButton(title: "Disabled Button", action: {}, isDisabled: true)
     }
     .padding()
     .background(Theme.background)
