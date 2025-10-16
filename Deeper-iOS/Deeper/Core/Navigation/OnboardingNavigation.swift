@@ -1,62 +1,79 @@
 import SwiftUI
 
+// MARK: - Legacy Onboarding Navigation (Deprecated)
+
+/// This file contains the legacy onboarding navigation implementation.
+/// The new data-driven approach is in AppRouter.swift and OnboardingFlow.swift
+/// This is kept for reference and can be removed once migration is complete.
+
+// MARK: - Onboarding Steps Enum (Legacy)
+
+enum OnboardingStep: Int, CaseIterable {
+    case welcome = 0
+    case artStyle = 1
+    case namePhoto = 2
+    case voiceTrainHours = 3
+    case breathworkMinutes = 4
+    case readAloudPages = 5
+    case loudEnvironmentsHours = 6
+    case steamHumidifyFrequency = 7
+    case extrasChooser = 8
+    case downGlidesCount = 9
+    case techniqueStudyDaily = 10
+    case permissions = 11
+    case aims = 12
+    case analyzing = 13
+    case currentRating = 14
+    case potentialRating = 15
+    
+    var progress: Double {
+        return Double(self.rawValue) / Double(OnboardingStep.allCases.count - 1)
+    }
+}
+
+/// Legacy onboarding navigation view - now replaced by AppRouter
+@available(*, deprecated, message: "Use AppRouter instead")
 struct OnboardingNavigationView: View {
-    @StateObject private var onboardingStore = OnboardingStore()
+    @EnvironmentObject var onboardingStore: OnboardingStore
     
     var body: some View {
         ZStack {
             Theme.background.ignoresSafeArea()
             
-            if onboardingStore.hasHydrated {
-                switch onboardingStore.currentStep {
+            if onboardingStore.hydrated {
+                switch OnboardingStep(rawValue: onboardingStore.stepIndex) ?? .welcome {
                 case .welcome:
                     WelcomeView()
-                        .environmentObject(onboardingStore)
                 case .artStyle:
                     ArtStyleView()
-                        .environmentObject(onboardingStore)
                 case .namePhoto:
                     NamePhotoView()
-                        .environmentObject(onboardingStore)
                 case .voiceTrainHours:
                     VoiceTrainHoursView()
-                        .environmentObject(onboardingStore)
                 case .breathworkMinutes:
                     BreathworkMinutesView()
-                        .environmentObject(onboardingStore)
                 case .readAloudPages:
                     ReadAloudPagesView()
-                        .environmentObject(onboardingStore)
                 case .loudEnvironmentsHours:
                     LoudEnvironmentsHoursView()
-                        .environmentObject(onboardingStore)
                 case .steamHumidifyFrequency:
                     SteamHumidifyFrequencyView()
-                        .environmentObject(onboardingStore)
                 case .extrasChooser:
                     ExtrasChooserView()
-                        .environmentObject(onboardingStore)
                 case .downGlidesCount:
                     DownGlidesCountView()
-                        .environmentObject(onboardingStore)
                 case .techniqueStudyDaily:
                     TechniqueStudyDailyView()
-                        .environmentObject(onboardingStore)
                 case .permissions:
                     PermissionsView()
-                        .environmentObject(onboardingStore)
                 case .aims:
                     AimsView()
-                        .environmentObject(onboardingStore)
                 case .analyzing:
                     AnalyzingView()
-                        .environmentObject(onboardingStore)
                 case .currentRating:
                     CurrentRatingView()
-                        .environmentObject(onboardingStore)
                 case .potentialRating:
                     PotentialRatingView()
-                        .environmentObject(onboardingStore)
                 }
             } else {
                 // Loading state
@@ -105,14 +122,14 @@ struct WelcomeView: View {
                 
                 VStack {
                     PrimaryButton(title: "Begin") {
-                        store.nextStep()
+                        store.next()
                     }
                     .padding(.bottom, Theme.spacingXXXL)
                 }
             }
         }
         .overlay(alignment: .top) {
-            ProgressBar(progress: store.progress)
+            ProgressBar(progress: OnboardingStep(rawValue: store.stepIndex)?.progress ?? 0.0)
         }
     }
 }
@@ -128,12 +145,12 @@ struct ArtStyleView: View {
                     .foregroundColor(Theme.textSecondary)
                 Spacer()
                 PrimaryButton(title: "Continue") {
-                    store.nextStep()
+                    store.next()
                 }
             }
         }
         .overlay(alignment: .top) {
-            ProgressBar(progress: store.progress)
+            ProgressBar(progress: OnboardingStep(rawValue: store.stepIndex)?.progress ?? 0.0)
         }
     }
 }
@@ -148,12 +165,12 @@ struct NamePhotoView: View {
                     .foregroundColor(Theme.textSecondary)
                 Spacer()
                 PrimaryButton(title: "Continue") {
-                    store.nextStep()
+                    store.next()
                 }
             }
         }
         .overlay(alignment: .top) {
-            ProgressBar(progress: store.progress)
+            ProgressBar(progress: OnboardingStep(rawValue: store.stepIndex)?.progress ?? 0.0)
         }
     }
 }
@@ -168,12 +185,12 @@ struct VoiceTrainHoursView: View {
                     .foregroundColor(Theme.textSecondary)
                 Spacer()
                 PrimaryButton(title: "Continue") {
-                    store.nextStep()
+                    store.next()
                 }
             }
         }
         .overlay(alignment: .top) {
-            ProgressBar(progress: store.progress)
+            ProgressBar(progress: OnboardingStep(rawValue: store.stepIndex)?.progress ?? 0.0)
         }
     }
 }
@@ -188,12 +205,12 @@ struct BreathworkMinutesView: View {
                     .foregroundColor(Theme.textSecondary)
                 Spacer()
                 PrimaryButton(title: "Continue") {
-                    store.nextStep()
+                    store.next()
                 }
             }
         }
         .overlay(alignment: .top) {
-            ProgressBar(progress: store.progress)
+            ProgressBar(progress: OnboardingStep(rawValue: store.stepIndex)?.progress ?? 0.0)
         }
     }
 }
@@ -208,12 +225,12 @@ struct ReadAloudPagesView: View {
                     .foregroundColor(Theme.textSecondary)
                 Spacer()
                 PrimaryButton(title: "Continue") {
-                    store.nextStep()
+                    store.next()
                 }
             }
         }
         .overlay(alignment: .top) {
-            ProgressBar(progress: store.progress)
+            ProgressBar(progress: OnboardingStep(rawValue: store.stepIndex)?.progress ?? 0.0)
         }
     }
 }
@@ -228,12 +245,12 @@ struct LoudEnvironmentsHoursView: View {
                     .foregroundColor(Theme.textSecondary)
                 Spacer()
                 PrimaryButton(title: "Continue") {
-                    store.nextStep()
+                    store.next()
                 }
             }
         }
         .overlay(alignment: .top) {
-            ProgressBar(progress: store.progress)
+            ProgressBar(progress: OnboardingStep(rawValue: store.stepIndex)?.progress ?? 0.0)
         }
     }
 }
@@ -248,12 +265,12 @@ struct SteamHumidifyFrequencyView: View {
                     .foregroundColor(Theme.textSecondary)
                 Spacer()
                 PrimaryButton(title: "Continue") {
-                    store.nextStep()
+                    store.next()
                 }
             }
         }
         .overlay(alignment: .top) {
-            ProgressBar(progress: store.progress)
+            ProgressBar(progress: OnboardingStep(rawValue: store.stepIndex)?.progress ?? 0.0)
         }
     }
 }
@@ -268,12 +285,12 @@ struct ExtrasChooserView: View {
                     .foregroundColor(Theme.textSecondary)
                 Spacer()
                 PrimaryButton(title: "Continue") {
-                    store.nextStep()
+                    store.next()
                 }
             }
         }
         .overlay(alignment: .top) {
-            ProgressBar(progress: store.progress)
+            ProgressBar(progress: OnboardingStep(rawValue: store.stepIndex)?.progress ?? 0.0)
         }
     }
 }
@@ -288,12 +305,12 @@ struct DownGlidesCountView: View {
                     .foregroundColor(Theme.textSecondary)
                 Spacer()
                 PrimaryButton(title: "Continue") {
-                    store.nextStep()
+                    store.next()
                 }
             }
         }
         .overlay(alignment: .top) {
-            ProgressBar(progress: store.progress)
+            ProgressBar(progress: OnboardingStep(rawValue: store.stepIndex)?.progress ?? 0.0)
         }
     }
 }
@@ -308,12 +325,12 @@ struct TechniqueStudyDailyView: View {
                     .foregroundColor(Theme.textSecondary)
                 Spacer()
                 PrimaryButton(title: "Continue") {
-                    store.nextStep()
+                    store.next()
                 }
             }
         }
         .overlay(alignment: .top) {
-            ProgressBar(progress: store.progress)
+            ProgressBar(progress: OnboardingStep(rawValue: store.stepIndex)?.progress ?? 0.0)
         }
     }
 }
@@ -328,12 +345,12 @@ struct PermissionsView: View {
                     .foregroundColor(Theme.textSecondary)
                 Spacer()
                 PrimaryButton(title: "Continue") {
-                    store.nextStep()
+                    store.next()
                 }
             }
         }
         .overlay(alignment: .top) {
-            ProgressBar(progress: store.progress)
+            ProgressBar(progress: OnboardingStep(rawValue: store.stepIndex)?.progress ?? 0.0)
         }
     }
 }
@@ -348,12 +365,12 @@ struct AimsView: View {
                     .foregroundColor(Theme.textSecondary)
                 Spacer()
                 PrimaryButton(title: "Continue") {
-                    store.nextStep()
+                    store.next()
                 }
             }
         }
         .overlay(alignment: .top) {
-            ProgressBar(progress: store.progress)
+            ProgressBar(progress: OnboardingStep(rawValue: store.stepIndex)?.progress ?? 0.0)
         }
     }
 }
@@ -376,12 +393,12 @@ struct AnalyzingView: View {
             }
         }
         .overlay(alignment: .top) {
-            ProgressBar(progress: store.progress)
+            ProgressBar(progress: OnboardingStep(rawValue: store.stepIndex)?.progress ?? 0.0)
         }
         .onAppear {
             // Simulate analysis delay
             DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
-                store.nextStep()
+                store.next()
             }
         }
     }
@@ -397,12 +414,12 @@ struct CurrentRatingView: View {
                     .foregroundColor(Theme.textSecondary)
                 Spacer()
                 PrimaryButton(title: "Continue") {
-                    store.nextStep()
+                    store.next()
                 }
             }
         }
         .overlay(alignment: .top) {
-            ProgressBar(progress: store.progress)
+            ProgressBar(progress: OnboardingStep(rawValue: store.stepIndex)?.progress ?? 0.0)
         }
     }
 }
@@ -423,7 +440,7 @@ struct PotentialRatingView: View {
             }
         }
         .overlay(alignment: .top) {
-            ProgressBar(progress: store.progress)
+            ProgressBar(progress: OnboardingStep(rawValue: store.stepIndex)?.progress ?? 0.0)
         }
     }
 }
